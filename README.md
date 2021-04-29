@@ -16,6 +16,133 @@ DCGDeckDecoder::Decode("DCGAdYlU1Q4IEHBQlQxIIPEB8UCQVNUMiBBRQNTVDggS8LBQUHBwcHBQ
 ?>
 ```
 
+```
+Array
+(
+    [digi-eggs] => Array
+        (
+            [0] => Array
+                (
+                    [number] => ST8-01
+                    [parallel-id] => 0
+                    [count] => 4
+                )
+
+        )
+
+    [deck] => Array
+        (
+            [0] => Array
+                (
+                    [number] => BT1-028
+                    [parallel-id] => 0
+                    [count] => 4
+                )
+
+            [1] => Array
+                (
+                    [number] => BT1-037
+                    [parallel-id] => 0
+                    [count] => 4
+                )
+
+            [2] => Array
+                (
+                    [number] => BT1-038
+                    [parallel-id] => 0
+                    [count] => 2
+                )
+
+            [3] => Array
+                (
+                    [number] => ST2-13
+                    [parallel-id] => 0
+                    [count] => 2
+                )
+
+            [4] => Array
+                (
+                    [number] => ST8-02
+                    [parallel-id] => 0
+                    [count] => 4
+                )
+
+            [5] => Array
+                (
+                    [number] => ST8-03
+                    [parallel-id] => 0
+                    [count] => 4
+                )
+
+            [6] => Array
+                (
+                    [number] => ST8-04
+                    [parallel-id] => 0
+                    [count] => 2
+                )
+
+            [7] => Array
+                (
+                    [number] => ST8-05
+                    [parallel-id] => 0
+                    [count] => 2
+                )
+
+            [8] => Array
+                (
+                    [number] => ST8-06
+                    [parallel-id] => 0
+                    [count] => 4
+                )
+
+            [9] => Array
+                (
+                    [number] => ST8-07
+                    [parallel-id] => 0
+                    [count] => 4
+                )
+
+            [10] => Array
+                (
+                    [number] => ST8-08
+                    [parallel-id] => 0
+                    [count] => 4
+                )
+
+            [11] => Array
+                (
+                    [number] => ST8-09
+                    [parallel-id] => 0
+                    [count] => 4
+                )
+
+            [12] => Array
+                (
+                    [number] => ST8-10
+                    [parallel-id] => 0
+                    [count] => 2
+                )
+
+            [13] => Array
+                (
+                    [number] => ST8-11
+                    [parallel-id] => 0
+                    [count] => 4
+                )
+
+            [14] => Array
+                (
+                    [number] => ST8-12
+                    [parallel-id] => 0
+                    [count] => 4
+                )
+
+        )
+
+    [name] => Starter Deck, UlforceVeedramon [ST-8]
+)
+```
+
 ## License
 
 Copyright © 2021 Brendon Walsh.
