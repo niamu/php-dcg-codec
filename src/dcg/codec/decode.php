@@ -37,7 +37,7 @@ class DCGDeckDecoder {
 
       while (true) {
         if ($indexStart > $indexEnd) {
-          return false;
+          throw new Exception("Attempted to read invalid byte index.");
         }
 
         $nNextByte = $data[$indexStart++];
@@ -66,22 +66,20 @@ class DCGDeckDecoder {
     &$nOutCardNumber
   ) {
     if($indexStart > $indexEnd) {
-      return false;
+      throw new Exception("Attempted to read invalid byte index.");
     }
 
     $nHeader = $data[$indexStart++];
 
     $nCardDelta = 0;
-    if (!DCGDeckDecoder::ReadVarEncodedUint32(
+    DCGDeckDecoder::ReadVarEncodedUint32(
       $nHeader,
       2,
       $data,
       $indexStart,
       $indexEnd,
       $nCardDelta
-    )) {
-      return false;
-    }
+    );
 
     $nOutCardNumber = $nPrevCardBase + $nCardDelta;
 
@@ -102,23 +100,21 @@ class DCGDeckDecoder {
     &$nOutCardNumber
   ) {
     if($indexStart > $indexEnd) {
-      return false;
+      throw new Exception("Attempted to read invalid byte index.");
     }
 
     $nOutCount = $data[$indexStart++] + 1;
     $nHeader = $data[$indexStart++];
 
     $nCardDelta = 0;
-    if (!DCGDeckDecoder::ReadVarEncodedUint32(
+    DCGDeckDecoder::ReadVarEncodedUint32(
       $nHeader,
       4,
       $data,
       $indexStart,
       $indexEnd,
       $nCardDelta
-    )) {
-      return false;
-    }
+    );
 
     $nOutCardNumber = $nPrevCardBase + $nCardDelta;
     $nOutParallelID = ($nHeader >> 5);
@@ -134,7 +130,7 @@ class DCGDeckDecoder {
     $version = $nVersionAndDigiEggCount >> 4;
 
     if($version > VERSION) {
-      return false;
+      throw new Exception("Decoding unsupported version: {$version}");
     }
 
     $nChecksum = $deckBytes[$nCurrentByteIndex++];
@@ -149,21 +145,19 @@ class DCGDeckDecoder {
 
       $masked = ($nComputedChecksum & 0xFF);
       if($nChecksum != $masked) {
-        return false;
+        throw new Exception("Invalid Checksum.");
       }
     }
 
     $digiEggCount = 0;
-    if (!DCGDeckDecoder::ReadVarEncodedUint32(
+    DCGDeckDecoder::ReadVarEncodedUint32(
       $nVersionAndDigiEggCount,
       3,
       $deckBytes,
       $nCurrentByteIndex,
       $nTotalCardBytes,
       $digiEggCount
-    )) {
-      return false;
-    }
+    );
 
     $cards = array();
     while($nCurrentByteIndex <= $nTotalCardBytes) {
@@ -197,7 +191,7 @@ class DCGDeckDecoder {
         $nCardNumber = 0;
         switch ($version) {
           case 0:
-            if(!DCGDeckDecoder::ReadSerializedCardv0(
+            DCGDeckDecoder::ReadSerializedCardv0(
               $deckBytes,
               $nCurrentByteIndex,
               $nTotalBytes,
@@ -205,12 +199,10 @@ class DCGDeckDecoder {
               $nCardCount,
               $nParallelID,
               $nCardNumber
-            )) {
-              return false;
-            }
+            );
             break;
           case 1:
-            if(!DCGDeckDecoder::ReadSerializedCardv1(
+            DCGDeckDecoder::ReadSerializedCardv1(
               $deckBytes,
               $nCurrentByteIndex,
               $nTotalBytes,
@@ -218,9 +210,7 @@ class DCGDeckDecoder {
               $nCardCount,
               $nParallelID,
               $nCardNumber
-            )) {
-              return false;
-            }
+            );
             break;
         }
 
@@ -252,7 +242,7 @@ class DCGDeckDecoder {
 
   private static function DecodeDeckString($deckCodeStr) {
     if(substr($deckCodeStr, 0, strlen(PREFIX)) != PREFIX) {
-      return false;
+      throw new Exception("Deck codes must begin with 'DCG'.");
     }
 
     $strNoPrefix = substr($deckCodeStr, strlen(PREFIX));
@@ -263,7 +253,7 @@ class DCGDeckDecoder {
   public static function Decode($deckCodeStr) {
     $deckBytes = DCGDeckDecoder::DecodeDeckString($deckCodeStr);
     if(!$deckBytes) {
-      return false;
+      throw new Exception("Decoding string resulted in no bytes.");
     }
 
     $deck = DCGDeckDecoder::ParseDeck($deckCodeStr, $deckBytes);

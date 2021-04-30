@@ -6,7 +6,7 @@ class DCGDeckEncoder {
   private static function ExtractNBitsWithCarry($value, $numBits) {
     $unLimitBit = 1 << $numBits;
     $unResult = ($value & ($unLimitBit - 1));
-    if($value >= $unLimitBit) {
+    if ($value >= $unLimitBit) {
       $unResult |= $unLimitBit;
     }
 
@@ -14,8 +14,8 @@ class DCGDeckEncoder {
   }
 
   private static function AddByte(&$bytes, $byte) {
-    if($byte > 255)
-      return false;
+    if ($byte > 255)
+      throw new Exception("Byte value out of range.");
 
     array_push($bytes, $byte);
     return true;
@@ -31,8 +31,7 @@ class DCGDeckEncoder {
     while ($unValue > 0) {
       $unNextByte = DCGDeckEncoder::ExtractNBitsWithCarry($unValue, 7);
       $unValue >>= 7;
-      if(!DCGDeckEncoder::AddByte($bytes, $unNextByte))
-        return false;
+      DCGDeckEncoder::AddByte($bytes, $unNextByte);
 
       $unNumBytes++;
     }
@@ -49,15 +48,33 @@ class DCGDeckEncoder {
   }
 
   private static function EncodeBytes($deckContents) {
-    if(
+    if (
       !isset($deckContents) ||
       !isset($deckContents["digi-eggs"]) ||
       !isset($deckContents["deck"])
     )
-      return false;
+      throw new Exception(
+        "Invalid deck contents. Requires 'digi-eggs' and 'deck' keys."
+      );
 
     $digiEggs = $deckContents["digi-eggs"];
     $deck = $deckContents["deck"];
+
+    // Confirm Digi-Egg deck sums to 5 or fewer cards
+    $sum = 0;
+    foreach($digiEggs as $c) {
+      $sum += $c["count"];
+    }
+    if ($sum < 0 || $sum > 5)
+      throw new Exception("'digi-eggs' card count must be between 0 and 5.");
+
+    // Confirm main Deck sums to exactly 50
+    $sum = 0;
+    foreach($deck as $c) {
+      $sum += $c["count"];
+    }
+    if ($sum != 50)
+      throw new Exception("'deck' card count must sum to exactly 50.");
 
     {
       $cardNumber  = array_column($digiEggs, "number");
@@ -81,6 +98,8 @@ class DCGDeckEncoder {
     
     $groupedDigiEggs = array();
     foreach($digiEggs as $card) {
+      if (!preg_match("/^[A-Z|0-9]{1,4}-[0-9]{2,3}$/", $card["number"]))
+        throw new Exception("card 'number' does not match a known structure.");
       $cardNumberSplit = preg_split("/-/", $card["number"]);
       $groupedDigiEggs[serialize(
         array(
@@ -105,17 +124,15 @@ class DCGDeckEncoder {
     $version = (VERSION << 4) | DCGDeckEncoder::ExtractNBitsWithCarry(
       $countDigiEggs, 3
     );
-    if(!DCGDeckEncoder::AddByte($bytes, $version))
-      return false;
+    DCGDeckEncoder::AddByte($bytes, $version);
 
     $nChecksumBytePos = 1;
-    if(!DCGDeckEncoder::AddByte($bytes, $nChecksumBytePos))
-      return false;
+    DCGDeckEncoder::AddByte($bytes, $nChecksumBytePos);
 
     // TODO: This doesn't support Kanji
     // (character length may not match byte length)
     $nameLen = 0;
-    if(isset($deckContents["name"])) {
+    if (isset($deckContents["name"])) {
       $name = $deckContents["name"];
       $trimLen = strlen($name);
       while($trimLen > 63)
@@ -129,8 +146,7 @@ class DCGDeckEncoder {
       $nameLen = strlen($name);
     }
 
-    if(!DCGDeckEncoder::AddByte($bytes, $nameLen))
-      return false;
+    DCGDeckEncoder::AddByte($bytes, $nameLen);
 
     foreach (array($groupedDigiEggs, $groupedDeck) as $d) {
       foreach ($d as $cardSetAndPad => $cards) {
@@ -142,38 +158,31 @@ class DCGDeckEncoder {
           $byte = char_to_base36($cardSet[$charIndex]);
           if ($charIndex != $cardSetLength - 1)
             $byte = $byte | 0x80;
-          if(!DCGDeckEncoder::AddByte($bytes, $byte))
-            return false;
+          DCGDeckEncoder::AddByte($bytes, $byte);
         }
 
-        if(!DCGDeckEncoder::AddByte(
-          $bytes, ((($pad - 1) << 6)) | count($cards)
-        ))
-          return false;
+        DCGDeckEncoder::AddByte($bytes, ((($pad - 1) << 6)) | count($cards));
 
         $prevCardBase = 0;
         foreach ($cards as $card) {
-          if($card["count"] == 0 || $card["count"] > 50)
-            return false;
+          if ($card["count"] == 0 || $card["count"] > 50)
+            throw new Exception("card 'count' cannot be 0 or greater than 50.");
 
           $cardNumber = intval(preg_split("/-/", $card["number"])[1], 10);
-          if($cardNumber <= 0)
-            return false;
+          if ($cardNumber <= 0)
+            throw new Exception("card 'number' value cannot be 0 or less.");
 
-          if(!DCGDeckEncoder::AddByte($bytes, $card["count"] - 1))
-            return false;
+          DCGDeckEncoder::AddByte($bytes, $card["count"] - 1);
 
           $cardNumberOffset = ($cardNumber - $prevCardBase);
           $pIdAndOffset = (
             ($card["parallel-id"] << 5) | 
             DCGDeckEncoder::ExtractNBitsWithCarry($cardNumberOffset, 4)
           );
-          if(!DCGDeckEncoder::AddByte($bytes, $pIdAndOffset))
-            return false;
-          if(!DCGDeckEncoder::AddRemainingNumberToBuffer(
+          DCGDeckEncoder::AddByte($bytes, $pIdAndOffset);
+          DCGDeckEncoder::AddRemainingNumberToBuffer(
             $cardNumberOffset, 4, $bytes
-          ))
-            return false;
+          );
 
           $prevCardBase = $cardNumber;
         }
@@ -190,10 +199,8 @@ class DCGDeckEncoder {
     // Deck Name
     {
       $nameBytes = unpack("C*", $name);
-      foreach($nameBytes as $nameByte)
-      {
-        if(!DCGDeckEncoder::AddByte($bytes, $nameByte))
-          return false;
+      foreach($nameBytes as $nameByte) {
+        DCGDeckEncoder::AddByte($bytes, $nameByte);
       }
     }
 
@@ -203,7 +210,7 @@ class DCGDeckEncoder {
   private static function EncodeBytesToString($bytes) {
     $byteCount = count($bytes);
     if ($byteCount == 0)
-      return false;
+      throw new Exception("Cannot encode byte count of 0 to string.");
 
     $packed = pack("C*", ...$bytes);
     $encoded = base64url_encode($packed);
@@ -212,12 +219,12 @@ class DCGDeckEncoder {
   }
 
   public static function Encode($deckContents) {
-    if(!$deckContents)
-      return false;
+    if (!$deckContents)
+      throw new Exception("No deck contents to encode");
 
     $bytes = DCGDeckEncoder::EncodeBytes($deckContents);
-    if(!$bytes)
-      return false;
+    if (!$bytes)
+      throw new Exception("No bytes to encode");
     $deck_code = DCGDeckEncoder::EncodeBytesToString($bytes);
     return $deck_code;
   }
