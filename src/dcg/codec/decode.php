@@ -1,6 +1,6 @@
 <?php
 
-require "common.php";
+require_once "common.php";
 
 class DCGDeckDecoder {
   private static function ReadBitsChunk(
@@ -269,4 +269,4 @@ class DCGDeckDecoder {
     $deck = DCGDeckDecoder::ParseDeck($deckCodeStr, $deckBytes);
     return $deck;
   }
-};
+}

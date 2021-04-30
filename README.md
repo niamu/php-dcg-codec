@@ -4,6 +4,134 @@ This repository is a PHP implementation of the [Digimon Card Game (2020)](https:
 
 ## Usage
 
+### Encode
+
+```PHP
+<?php
+
+require "src/dcg/codec/encode.php";
+
+DCGDeckEncoder::Encode(
+    array
+    (
+        "digi-eggs" => array
+            (
+                array
+                    (
+                        "number" => "ST8-01",
+                        "parallel-id" => 0,
+                        "count" => 4
+                    )
+
+            ),
+        "deck" => array
+            (
+                array
+                    (
+                        "number" => "BT1-028",
+                        "parallel-id" => 0,
+                        "count" => 4
+                    ),
+                array
+                    (
+                        "number" => "BT1-037",
+                        "parallel-id" => 0,
+                        "count" => 4
+                    ),
+                array
+                    (
+                        "number" => "BT1-038",
+                        "parallel-id" => 0,
+                        "count" => 2
+                    ),
+                array
+                    (
+                        "number" => "ST2-13",
+                        "parallel-id" => 0,
+                        "count" => 2
+                    ),
+                array
+                    (
+                        "number" => "ST8-02",
+                        "parallel-id" => 0,
+                        "count" => 4
+                    ),
+                array
+                    (
+                        "number" => "ST8-03",
+                        "parallel-id" => 0,
+                        "count" => 4
+                    ),
+                array
+                    (
+                        "number" => "ST8-04",
+                        "parallel-id" => 0,
+                        "count" => 2
+                    ),
+                array
+                    (
+                        "number" => "ST8-05",
+                        "parallel-id" => 0,
+                        "count" => 2
+                    ),
+                array
+                    (
+                        "number" => "ST8-06",
+                        "parallel-id" => 0,
+                        "count" => 4
+                    ),
+                array
+                    (
+                        "number" => "ST8-07",
+                        "parallel-id" => 0,
+                        "count" => 4
+                    ),
+                array
+                    (
+                        "number" => "ST8-08",
+                        "parallel-id" => 0,
+                        "count" => 4
+                    ),
+                array
+                    (
+                        "number" => "ST8-09",
+                        "parallel-id" => 0,
+                        "count" => 4
+                    ),
+                array
+                    (
+                        "number" => "ST8-10",
+                        "parallel-id" => 0,
+                        "count" => 4
+                    ),
+                array
+                    (
+                        "number" => "ST8-11",
+                        "parallel-id" => 0,
+                        "count" => 4
+                    ),
+                array
+                    (
+                        "number" => "ST8-12",
+                        "parallel-id" => 0,
+                        "count" => 4
+                    )
+
+            ),
+        "name" => "Starter Deck, UlforceVeedramon [ST-8]"
+    )
+);
+
+?>
+```
+
+**Returns**
+
+```
+DCGAdYlU1Q4IEHBQlQxIIPEB8UCQVNUMiBBRQNTVDggS8LBQUHBwcHBQcHBU3RhcnRlciBEZWNrLCBVbGZvcmNlVmVlZHJhbW9uIFtTVC04XQ
+```
+
+
 ### Decode
 
 ```PHP
@@ -15,6 +143,8 @@ DCGDeckDecoder::Decode("DCGAdYlU1Q4IEHBQlQxIIPEB8UCQVNUMiBBRQNTVDggS8LBQUHBwcHBQ
 
 ?>
 ```
+
+**Returns**
 
 ```
 Array
